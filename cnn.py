@@ -180,167 +180,142 @@ for i in range(3):
 
 for i in range(5):
     visualize_feature_maps(cnn,wrong[i])
-    
-    
-  
-# Load the image
-img = Image.open('image.png')
-img = np.array(img)
 
 
-# Convert NumPy array to PIL Image
-img = Image.fromarray(img)
-img = img.convert('L')
-# Resize image
-img_resized = img.resize((28, 28))
-img = np.array(img_resized)
+# # Forward
+# x = cnn.conv.forward(img)                       # (3, 26, 26)
+# x = cnn.pool.forward(x)                         # (3, 13, 13)
+# x_flat = x.flatten()
+# logits = cnn.fc.forward(x_flat)
+# probs = softmax(logits)
+# loss = cross_entropy_loss(probs, label)
+
+# # Backward
+# dL_dz = probs.copy()
+# dL_dz[label] -= 1
+# dL_dx_flat = cnn.fc.backward(dL_dz)
+# cnn.fc.update()
+
+# dL_dpool = dL_dx_flat.reshape(3, 13, 13)
+# dL_dconv = cnn.pool.backward(dL_dpool)
+# dL_dinput = cnn.conv.backward(dL_dconv)
+# cnn.conv.update()
 
 
-# Convert to NumPy array
-array = np.array(img)
-array = abs(array-255)/255.0
+# output_probs = cnn.forward(sample_img)
 
-img = np.zeros((1,28,28))
-
-img[0] = array
-
-visualize_feature_maps(cnn, img)  
+# print("Output probabilities:", output_probs)
+# print("Sum (should be 1):", np.sum(output_probs))
+# print("Predicted class:", np.argmax(output_probs))
+# print("True label:", y_train[0])
 
 
-# Forward
-x = cnn.conv.forward(img)                       # (3, 26, 26)
-x = cnn.pool.forward(x)                         # (3, 13, 13)
-x_flat = x.flatten()
-logits = cnn.fc.forward(x_flat)
-probs = softmax(logits)
-loss = cross_entropy_loss(probs, label)
+# # Load dataset
+# (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-# Backward
-dL_dz = probs.copy()
-dL_dz[label] -= 1
-dL_dx_flat = cnn.fc.backward(dL_dz)
-cnn.fc.update()
+# # Normalize pixel values to the range [0, 1]
+# x_train = x_train.astype('float32') / 255.0
+# x_test = x_test.astype('float32') / 255.0
 
-dL_dpool = dL_dx_flat.reshape(3, 13, 13)
-dL_dconv = cnn.pool.backward(dL_dpool)
-dL_dinput = cnn.conv.backward(dL_dconv)
-cnn.conv.update()
+# # Get images in 2D shape
+# x_train = x_train.reshape(-1, 1, 28, 28)
+# x_test = x_test.reshape(-1, 1, 28, 28)
 
-
-output_probs = cnn.forward(sample_img)
-
-print("Output probabilities:", output_probs)
-print("Sum (should be 1):", np.sum(output_probs))
-print("Predicted class:", np.argmax(output_probs))
-print("True label:", y_train[0])
-
-
-# Load dataset
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
-
-# Normalize pixel values to the range [0, 1]
-x_train = x_train.astype('float32') / 255.0
-x_test = x_test.astype('float32') / 255.0
-
-# Get images in 2D shape
-x_train = x_train.reshape(-1, 1, 28, 28)
-x_test = x_test.reshape(-1, 1, 28, 28)
-
-print(x_train.shape)  # (60000, 1, 28, 28)
-print(x_test.shape)   # (10000, 1, 28, 28)
+# print(x_train.shape)  # (60000, 1, 28, 28)
+# print(x_test.shape)   # (10000, 1, 28, 28)
 
 
 
-# Example kernel: simple edge detector
-kernel = np.array([
-    [-1, 0, 1],
-    [-1, 0, 1],
-    [-1, 0, 1]
-])
+# # Example kernel: simple edge detector
+# kernel = np.array([
+#     [-1, 0, 1],
+#     [-1, 0, 1],
+#     [-1, 0, 1]
+# ])
 
-# Pick an image (28x28)
-img = x_train[0, 0, :, :]  # shape (28,28)
+# # Pick an image (28x28)
+# img = x_train[0, 0, :, :]  # shape (28,28)
 
-conv_result = convolve(img, kernel)
+# conv_result = convolve(img, kernel)
 
-plt.subplot(1, 2, 1)
-plt.title("Original")
-plt.imshow(img, cmap='gray')
+# plt.subplot(1, 2, 1)
+# plt.title("Original")
+# plt.imshow(img, cmap='gray')
 
-plt.subplot(1, 2, 2)
-plt.title("Convolved")
-plt.imshow(conv_result, cmap='gray')
+# plt.subplot(1, 2, 2)
+# plt.title("Convolved")
+# plt.imshow(conv_result, cmap='gray')
 
-plt.show()
-
-
-
-conv_layer = ConvolutionLayer(in_channels=1, out_channels=3, kernel_size=3)
-
-# Pick a sample MNIST image, shape (1, 28, 28)
-sample_img = x_train[0]
-
-# Forward pass through conv layer
-output = conv_layer.forward(sample_img)
-
-print("Output shape:", output.shape)  # Should be (3, 26, 26)
-
-fig, axs = plt.subplots(1, 3, figsize=(10, 3))
-for i in range(3):
-    axs[i].imshow(output[i], cmap='gray')
-    axs[i].set_title(f'Filter {i+1}')
-    axs[i].axis('off')
-plt.show()
+# plt.show()
 
 
 
-pool = MaxPoolLayer(kernel_size=2, stride=2)
-pooled_output = pool.forward(output)
+# conv_layer = ConvolutionLayer(in_channels=1, out_channels=3, kernel_size=3)
 
-print("Pooled output shape:", pooled_output.shape)  # Should be (3, 13, 13)
+# # Pick a sample MNIST image, shape (1, 28, 28)
+# sample_img = x_train[0]
 
-fig, axs = plt.subplots(1, 3, figsize=(10, 3))
-for i in range(3):
-    axs[i].imshow(pooled_output[i], cmap='gray')
-    axs[i].set_title(f'Pooled Filter {i+1}')
-    axs[i].axis('off')
-plt.show()
+# # Forward pass through conv layer
+# output = conv_layer.forward(sample_img)
 
+# print("Output shape:", output.shape)  # Should be (3, 26, 26)
 
-
-fc = FullyConnectedLayer(input_size=507, output_size=10)
-
-logits = fc.forward(pooled_output.flatten())
-print("Logits shape:", logits.shape) 
-print("Logits:", logits)
-
-probs = softmax(logits)
-print("Probabilities:", probs)
-print("Sum:", np.sum(probs))
+# fig, axs = plt.subplots(1, 3, figsize=(10, 3))
+# for i in range(3):
+#     axs[i].imshow(output[i], cmap='gray')
+#     axs[i].set_title(f'Filter {i+1}')
+#     axs[i].axis('off')
+# plt.show()
 
 
 
-def conv2d_single_channel(input, kernel, padding=0):
-    new_input = np.zeros((input.shape[0]+padding*2, input.shape[1]+padding*2))
-    H_in, W_in = new_input.shape
+# pool = MaxPoolLayer(kernel_size=2, stride=2)
+# pooled_output = pool.forward(output)
 
-    if padding <= 0:
-        new_input = input.copy()
-    else:
-        new_input[padding:H_in-padding, padding:W_in-padding] = input
+# print("Pooled output shape:", pooled_output.shape)  # Should be (3, 13, 13)
 
-    kH, kW = kernel.shape
-    H_out = H_in - kH + 1
-    W_out = W_in - kW + 1
-    output = np.zeros((H_out, W_out))
+# fig, axs = plt.subplots(1, 3, figsize=(10, 3))
+# for i in range(3):
+#     axs[i].imshow(pooled_output[i], cmap='gray')
+#     axs[i].set_title(f'Pooled Filter {i+1}')
+#     axs[i].axis('off')
+# plt.show()
 
-    for i in range(H_out):
-        for j in range(W_out):
-            output[i, j] = np.sum(new_input[i:i+kH, j:j+kW] * kernel)
-    plt.show()
 
-input = np.random.randint(1, 11, size=(5,5))
-print(input)
-kernel = np.random.randn(3,3)
-conv2d_single_channel(input,kernel)
+
+# fc = FullyConnectedLayer(input_size=507, output_size=10)
+
+# logits = fc.forward(pooled_output.flatten())
+# print("Logits shape:", logits.shape) 
+# print("Logits:", logits)
+
+# probs = softmax(logits)
+# print("Probabilities:", probs)
+# print("Sum:", np.sum(probs))
+
+
+
+# def conv2d_single_channel(input, kernel, padding=0):
+#     new_input = np.zeros((input.shape[0]+padding*2, input.shape[1]+padding*2))
+#     H_in, W_in = new_input.shape
+
+#     if padding <= 0:
+#         new_input = input.copy()
+#     else:
+#         new_input[padding:H_in-padding, padding:W_in-padding] = input
+
+#     kH, kW = kernel.shape
+#     H_out = H_in - kH + 1
+#     W_out = W_in - kW + 1
+#     output = np.zeros((H_out, W_out))
+
+#     for i in range(H_out):
+#         for j in range(W_out):
+#             output[i, j] = np.sum(new_input[i:i+kH, j:j+kW] * kernel)
+#     plt.show()
+
+# input = np.random.randint(1, 11, size=(5,5))
+# print(input)
+# kernel = np.random.randn(3,3)
+# conv2d_single_channel(input,kernel)
     
